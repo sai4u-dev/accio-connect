@@ -6,8 +6,8 @@ const { LOCATION, COURSE_TYPE, ALL_BATCH } = require("../constants");
 const cookieName = "accioConnectToken";
 
 // SIGNUP
-const signUp = async (req, res, next) => {
-  // Verify email exists in accio database
+const signup = async (req, res, next) => {
+  // Verify email exists in accio databases
 
   // Verify batch in system
 
@@ -54,7 +54,10 @@ const signUp = async (req, res, next) => {
       email,
       phoneNumber,
       password: hashed,
-      image_Url,
+      batch,
+      location,
+      courseType,
+      profilePicture: image_Url,
     });
 
     const { password: _, ...safeUser } = user.toObject();
@@ -65,12 +68,12 @@ const signUp = async (req, res, next) => {
 };
 
 // LOGIN
-const signIn = async (req, res, next) => {
+const signin = async (req, res, next) => {
   try {
     const { email, password } = req.body; //email, password
     if (!email || !password) return res.err(400, "Enter email & password");
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) return res.err(404, "User not found");
 
     const isValid = await bcrypt.compare(password, user.password);
@@ -94,6 +97,21 @@ const signIn = async (req, res, next) => {
   }
 };
 
+// LOGOUT
+const logout = async (req, res, next) => {
+  try {
+    res.clearCookie(cookieName, {
+      httpOnly: true,
+      secure: false, // true in production with HTTPS
+      sameSite: "lax",
+    });
+
+    return res.success(200, "Logout successful");
+  } catch (err) {
+    next(err);
+  }
+};
+
 // PROFILE
 const profile = async (req, res, next) => {
   try {
@@ -105,4 +123,4 @@ const profile = async (req, res, next) => {
   }
 };
 
-module.exports = { signIn, signUp, profile };
+module.exports = { signin, signup, profile, logout };
