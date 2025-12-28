@@ -26,6 +26,11 @@ app.use(responseHandler);
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
+app.get("/healthcheck", (req, res) => {
+  res.status(200).json({
+    message: "Hello from middleware"
+  });
+})
 
 // 404 Handler
 app.use((req, res) =>
