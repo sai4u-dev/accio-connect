@@ -1,6 +1,6 @@
 // src/pages/SignUp.jsx
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
@@ -11,6 +11,21 @@ const SignUp = () => {
     const [phoneNumber, setPhoneNumber] = useState("")
     const [image_Url, setImageUrl] = useState("")
     const navigate = useNavigate()
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                await axios.get("http://localhost:8000/api/auth/me", {
+                    withCredentials: true,
+                });
+                navigate("/profile");
+            } catch (err) {
+                console.log(err)
+            }
+        };
+
+        checkAuth();
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

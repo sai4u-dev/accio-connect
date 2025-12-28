@@ -3,6 +3,8 @@ import axios from "axios";
 import { SiGmail } from "react-icons/si";
 import { BsFillPhoneFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom"
+import Posts from "./Posts";
+
 
 const Profile = () => {
     const [user, setUser] = useState(null);
@@ -45,30 +47,34 @@ const Profile = () => {
     if (error) return <div>{error}</div>;
 
     return (
-        <div className="p-5 flex justify-center items-center h-screen mtdr">
+        <>
+            <div className="p-5 flex justify-center items-center h-screen mtdr">
 
 
-            <div className="flex flex-col gap-x-10 border-2 border-amber-500 px-4 py-10 rounded-xl bg-orange-300 text-white shadow-amber-900 shadow-2xl">
-                <div className="pb-8 pl-16">
-                    <img className="h-30 w-30 bg-[orange] bg-center  p-px rounded-full" src={user.profilePicture} alt={user.firstName + user.lastName} />
-                </div>
-                <div className="grid gap-y-2">
-                    <h1 className="text-2xl font-light absolute top-10 right-10 text-black">Welcome <span className="text-[orange] text-4xl">{user.firstName + " " + user.lastName} </span>
-                        <button
-                            onClick={handleLogout}
-                            className="mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
-                        >
-                            Logout
-                        </button></h1>
-                    <p><b className="flex items-center gap-x-2"><SiGmail color="white" />  Email:  </b>
-                        {user.email}
-                    </p>
-                    <p><b className="flex items-center gap-x-2">  <BsFillPhoneFill color="white" /> Phone:</b>
-                        {user.phoneNumber}
-                    </p>
+                <div className="flex flex-col gap-x-10 border-2 border-amber-500 px-4 py-10 rounded-xl bg-orange-300 text-white shadow-amber-900 shadow-2xl">
+                    <div className="pb-8 pl-16">
+                        <img className="h-30 w-30 bg-[orange] bg-center  p-px rounded-full" src={user.profilePicture} alt={user.firstName + user.lastName} />
+                    </div>
+                    <div className="grid gap-y-2">
+                        <h1 className="text-2xl font-light absolute top-10 right-10 text-black">Welcome <span className="text-[orange] text-4xl">{user.firstName + " " + user.lastName} </span>
+                            <button
+                                onClick={handleLogout}
+                                className="mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
+                            >
+                                Logout
+                            </button></h1>
+                        <p><b className="flex items-center gap-x-2"><SiGmail color="white" />  Email:  </b>
+                            {user.email}
+                        </p>
+                        <p><b className="flex items-center gap-x-2">  <BsFillPhoneFill color="white" /> Phone:</b>
+                            {user.phoneNumber}
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
+            <Posts />
+        </>
+
     );
 };
 

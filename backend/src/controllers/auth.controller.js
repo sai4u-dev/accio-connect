@@ -123,4 +123,12 @@ const profile = async (req, res, next) => {
   }
 };
 
-module.exports = { signin, signup, profile, logout };
+const me = async (req, res, next) => {
+  try {
+    res.success(200, "Authenticated", req.user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { signin, signup, profile, logout, me };

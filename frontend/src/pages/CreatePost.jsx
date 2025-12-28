@@ -39,7 +39,7 @@ const CreatePost = ({ onClose, onPostCreated }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-[#1e1e1e] text-white w-[520px] rounded-xl p-6">
+            <div className="bg-[#1e1e1e] text-white w-130 rounded-xl p-6">
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">

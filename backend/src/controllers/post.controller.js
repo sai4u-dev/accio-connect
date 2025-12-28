@@ -76,4 +76,77 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-module.exports = { createPost, updatePost, deletePost };
+const getAllPosts = async (req, res, next) => {
+  try {
+    const posts = await Post.find()
+      .populate("user", "userName profilePic")
+      .sort({ createdAt: -1 });
+    console.log(posts);
+
+    res.success(200, "Posts fetched successfully", posts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getSinglePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.err(404, "Post not found");
+
+    res.success(200, "Post fetched successfully", post);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const likeUnlikePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const { id, userName, profilePic } = req.user;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.err(404, "Post not found");
+
+    if (post.isLikeDisable)
+      return res.err(403, "Likes are disabled for this post");
+
+    const likeIndex = post.likes.findIndex((like) => like.userId === id);
+
+    if (likeIndex !== -1) {
+      // UNLIKE
+      post.likes.splice(likeIndex, 1);
+      await post.save();
+
+      return res.success(200, "Post unliked successfully", {
+        likesCount: post.likes.length,
+      });
+    }
+
+    // LIKE
+    post.likes.push({
+      userId: id,
+      userName,
+      profilePic,
+    });
+
+    await post.save();
+
+    res.success(200, "Post liked successfully", {
+      likesCount: post.likes.length,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  createPost,
+  updatePost,
+  deletePost,
+  getAllPosts,
+  getSinglePost,
+  likeUnlikePost,
+};
