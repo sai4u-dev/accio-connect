@@ -1,257 +1,253 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { SiGmail } from "react-icons/si";
-import { BsFillPhoneFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom"
-import Posts from "./Posts";
+import { useSelector, useDispatch } from "react-redux";
+import { logout, updateProfile } from "../features/auth/authThunks";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-
-const Profile = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+export default function Profile() {
+    const { user, isAuthenticated } = useSelector((s) => s.auth);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const fetchProfile = async () => {
-        try {
-            const res = await axios.get("http://localhost:8000/api/auth/profile", {
-                withCredentials: true,
-            });
-            setUser(res.data.data);
-        } catch (err) {
-            console.error(err);
-            setError("Not authenticated");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await axios.post(
-                "http://localhost:8000/api/auth/logout",
-                {},
-                { withCredentials: true }
-            );
-            navigate("/signin");
-        } catch (err) {
-            console.error("Logout failed", err);
-        }
-    };
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [formData, setFormData] = useState({});
+    const [avatarPreview, setAvatarPreview] = useState(null);
 
     useEffect(() => {
-        fetchProfile();
+        if (!isAuthenticated) navigate("/login");
+        if (user) setFormData({ ...user });
+    }, [isAuthenticated, navigate, user]);
+
+    useEffect(() => {
+        document.title = "Profile";
     }, []);
 
-    if (loading) return <div>Loading profile...</div>;
-    if (error) return <div>{error}</div>;
+    if (!user) return null;
+
+    const handleChange = (e) => {
+        const { name, value, files } = e.target;
+        if (name === "profilePicture" && files[0]) {
+            setAvatarPreview(URL.createObjectURL(files[0]));
+            setFormData({ ...formData, profilePictureFile: files[0] });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+    };
+
+    const handleSave = () => {
+        const updateData = new FormData();
+        for (let key in formData) {
+            if (formData[key] !== undefined) updateData.append(key, formData[key]);
+        }
+        dispatch(updateProfile(updateData));
+        setModalOpen(false);
+    };
 
     return (
-        <>
-            <div className="p-5 flex justify-center items-center h-screen mtdr">
-
-
-                <div className="flex flex-col gap-x-10 border-2 border-amber-500 px-4 py-10 rounded-xl bg-orange-300 text-white shadow-amber-900 shadow-2xl">
-                    <div className="pb-8 pl-16">
-                        <img className="h-30 w-30 bg-[orange] bg-center  p-px rounded-full" src={user.profilePicture} alt={user.firstName + user.lastName} />
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6 flex justify-center">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+                {/* LEFT – PROFILE CARD */}
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl p-6 text-white">
+                    <div className="flex flex-col items-center">
+                        <motion.img
+                            src={avatarPreview || user.profilePicture || "/default-avatar.png"}
+                            alt="profile"
+                            className="w-28 h-28 rounded-full border-4 border-indigo-400 object-cover"
+                            whileHover={{ scale: 1.05 }}
+                        />
+                        <h2 className="mt-4 text-xl font-bold">
+                            {user.firstName} {user.lastName}
+                        </h2>
+                        <p className="text-sm text-gray-300">{user.email}</p>
+                        <span className="mt-2 px-3 py-1 text-xs rounded-full bg-green-500/20 text-green-300">
+                            Active Account
+                        </span>
                     </div>
-                    <div className="grid gap-y-2">
-                        <h1 className="text-2xl font-light absolute top-10 right-10 text-black">Welcome <span className="text-[orange] text-4xl">{user.firstName + " " + user.lastName} </span>
-                            <button
-                                onClick={handleLogout}
-                                className="mt-6 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
-                            >
-                                Logout
-                            </button></h1>
-                        <p><b className="flex items-center gap-x-2"><SiGmail color="white" />  Email:  </b>
-                            {user.email}
-                        </p>
-                        <p><b className="flex items-center gap-x-2">  <BsFillPhoneFill color="white" /> Phone:</b>
-                            {user.phoneNumber}
-                        </p>
+
+                    {/* STATS */}
+                    <div className="grid grid-cols-3 gap-4 text-center mt-6">
+                        <Stat label="Batch" value={user.batch} />
+                        <Stat label="Course" value={user.courseType} />
+                        <Stat label="Location" value={user.location} />
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="mt-6 space-y-3">
+                        <button
+                            onClick={() => setModalOpen(true)}
+                            className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 rounded-lg font-medium transition"
+                        >
+                            Edit Profile
+                        </button>
+
+                        <button
+                            onClick={() => dispatch(logout())}
+                            className="w-full bg-red-500 hover:bg-red-600 py-2 rounded-lg font-medium transition"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
-            </div>
-            <Posts />
-        </>
 
+                {/* RIGHT – DETAILS & Sessions */}
+                <div className="md:col-span-2 bg-white rounded-2xl shadow-xl p-6 overflow-x-auto">
+                    <h3 className="text-lg font-semibold mb-4">Account Details</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Info label="Phone Number" value={user.phoneNumber} />
+                        <Info label="Email" value={user.email} />
+                        <Info label="Batch" value={user.batch} />
+                        <Info label="Course Type" value={user.courseType} />
+                        <Info label="Location" value={user.location} />
+                    </div>
+
+                    {/* SESSION HISTORY TABLE */}
+                    <div className="mt-6">
+                        <h4 className="font-medium mb-2">Session History</h4>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm text-left text-gray-800">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-2">Login</th>
+                                        <th className="px-4 py-2">Logout</th>
+                                        <th className="px-4 py-2">Device</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {user.sessions?.map((s, i) => (
+                                        <tr key={i} className="border-b hover:bg-gray-50 transition">
+                                            <td className="px-4 py-2">
+                                                {new Date(s.login).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                {s.logout ? new Date(s.logout).toLocaleString() : "Active"}
+                                            </td>
+                                            <td className="px-4 py-2">{s.device || "Unknown"}</td>
+                                        </tr>
+                                    )) || (
+                                            <tr>
+                                                <td colSpan={3} className="px-4 py-2 text-gray-400 text-center">
+                                                    No sessions yet
+                                                </td>
+                                            </tr>
+                                        )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* EDIT PROFILE MODAL */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                            className="bg-white rounded-2xl w-full max-w-md p-6 shadow-lg"
+                        >
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                                Edit Profile
+                            </h3>
+
+                            <div className="flex flex-col space-y-3">
+                                {/* Avatar Upload */}
+                                <div className="flex flex-col items-center">
+                                    <img
+                                        src={avatarPreview || user.profilePicture || "/default-avatar.png"}
+                                        alt="avatar preview"
+                                        className="w-24 h-24 rounded-full object-cover mb-2 border"
+                                    />
+                                    <input
+                                        type="file"
+                                        name="profilePicture"
+                                        accept="image/*"
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    placeholder="First Name"
+                                    className="border rounded px-3 py-2"
+                                    value={formData.firstName || ""}
+                                    onChange={handleChange}
+                                />
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    placeholder="Last Name"
+                                    className="border rounded px-3 py-2"
+                                    value={formData.lastName || ""}
+                                    onChange={handleChange}
+                                />
+                                <input
+                                    type="text"
+                                    name="phoneNumber"
+                                    placeholder="Phone Number"
+                                    className="border rounded px-3 py-2"
+                                    value={formData.phoneNumber || ""}
+                                    onChange={handleChange}
+                                />
+                                <input
+                                    type="text"
+                                    name="location"
+                                    placeholder="Location"
+                                    className="border rounded px-3 py-2"
+                                    value={formData.location || ""}
+                                    onChange={handleChange}
+                                />
+
+                                <div className="flex justify-end space-x-2 mt-4">
+                                    <button
+                                        onClick={() => setModalOpen(false)}
+                                        className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        className="px-4 py-2 rounded bg-indigo-500 text-white hover:bg-indigo-600 transition"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
-};
+}
 
-export default Profile;
+/* Components */
 
+function Stat({ label, value }) {
+    return (
+        <div className="bg-white/10 rounded-xl p-3 text-white">
+            <p className="text-xs text-gray-300">{label}</p>
+            <p className="font-semibold text-sm">{value || "-"}</p>
+        </div>
+    );
+}
 
-
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-// import { SiGmail } from "react-icons/si";
-// import { BsFillPhoneFill } from "react-icons/bs";
-
-// const Profile = () => {
-//     const [user, setUser] = useState(null);
-//     const [loading, setLoading] = useState(true);
-//     const [error, setError] = useState(null);
-//     const navigate = useNavigate();
-
-//     useEffect(() => {
-//         const fetchProfile = async () => {
-//             try {
-//                 const res = await axios.get(
-//                     "http://localhost:8000/api/auth/profile",
-//                     { withCredentials: true }
-//                 );
-//                 setUser(res.data.data);
-//             } catch (err) {
-//                 console.log(err)
-//                 setError("Not authenticated");
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-//         fetchProfile();
-//     }, []);
-
-//     const handleLogout = async () => {
-//         await axios.post(
-//             "http://localhost:8000/api/auth/logout",
-//             {},
-//             { withCredentials: true }
-//         );
-//         navigate("/signin");
-//     };
-
-//     if (loading) return <div className="p-10">Loading profile...</div>;
-//     if (error) return <div className="p-10 text-red-500">{error}</div>;
-
-//     return (
-//         <div className="min-h-screen bg-gray-100 flex">
-//             {/* Sidebar */}
-//             <div className="w-64 bg-white border-r p-6">
-//                 <h1 className="text-2xl font-bold text-blue-600 mb-8">Accio</h1>
-//                 <ul className="space-y-4 text-gray-600">
-//                     <li className="font-semibold text-blue-600">Home</li>
-//                     <li>Messages</li>
-//                     <li>Referral Posts</li>
-//                     <li>Connections</li>
-//                 </ul>
-
-//                 <div className="flex items-center gap-3 mt-10">
-//                     <img
-//                         src={user.profilePicture}
-//                         className="h-10 w-10 rounded-full"
-//                         alt=""
-//                     />
-//                     <div>
-//                         <p className="font-semibold">
-//                             {user.firstName} {user.lastName}
-//                         </p>
-//                         <p className="text-sm text-green-500">Online</p>
-//                     </div>
-//                 </div>
-//             </div>
-
-//             {/* Main Content */}
-//             <div className="flex-1 p-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-//                 {/* Profile Section */}
-//                 <div className="lg:col-span-2 space-y-6">
-//                     {/* Profile Header */}
-//                     <div className="bg-white rounded-xl shadow relative">
-//                         <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-100 rounded-t-xl" />
-
-//                         <img
-//                             src={user.profilePicture}
-//                             alt="profile"
-//                             className="h-28 w-28 rounded-full border-4 border-white absolute left-8 top-20"
-//                         />
-
-//                         <div className="pt-20 pb-6 px-8">
-//                             <h1 className="text-2xl font-semibold">
-//                                 {user.firstName} {user.lastName}
-//                             </h1>
-//                             <p className="text-gray-600">Software Engineer at Accio</p>
-//                             <p className="text-sm text-gray-500">Bangalore, India</p>
-
-//                             <div className="flex gap-6 mt-4 text-sm text-gray-600">
-//                                 <p className="flex items-center gap-2">
-//                                     <SiGmail /> {user.email}
-//                                 </p>
-//                                 <p className="flex items-center gap-2">
-//                                     <BsFillPhoneFill /> {user.phoneNumber}
-//                                 </p>
-//                             </div>
-
-//                             <button
-//                                 onClick={handleLogout}
-//                                 className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded-lg"
-//                             >
-//                                 Logout
-//                             </button>
-//                         </div>
-//                     </div>
-
-//                     {/* Post */}
-//                     <div className="bg-white rounded-xl shadow p-6">
-//                         <div className="flex items-center gap-3 mb-3">
-//                             <img
-//                                 src={user.profilePicture}
-//                                 className="h-10 w-10 rounded-full"
-//                                 alt=""
-//                             />
-//                             <div>
-//                                 <p className="font-semibold">
-//                                     {user.firstName} {user.lastName}
-//                                 </p>
-//                                 <p className="text-sm text-gray-500">2d</p>
-//                             </div>
-//                         </div>
-
-//                         <p className="mb-3">Had a great time at the conference!</p>
-
-//                         <img
-//                             src="https://images.unsplash.com/photo-1503428593586-e225b39bddfe"
-//                             className="rounded-lg"
-//                             alt="post"
-//                         />
-
-//                         <div className="flex gap-6 text-gray-500 mt-4">
-//                             <span>❤️ 238</span>
-//                             <span>💬 67</span>
-//                         </div>
-//                     </div>
-//                 </div>
-
-//                 {/* Right Panel */}
-//                 <div className="space-y-6">
-//                     <div className="bg-white rounded-xl shadow p-6">
-//                         <h2 className="font-semibold mb-4">Profile Overview</h2>
-//                         <div className="space-y-2 text-gray-600">
-//                             <p>👥 875 Connections</p>
-//                             <p>👁 124 Profile Visits</p>
-//                             <p>📌 49 Referral Posts</p>
-//                         </div>
-//                     </div>
-
-//                     <div className="bg-white rounded-xl shadow p-6">
-//                         <h2 className="font-semibold mb-4">Recently Placed</h2>
-//                         <div className="flex items-center gap-3">
-//                             <img
-//                                 src={user.profilePicture}
-//                                 className="h-10 w-10 rounded-full"
-//                                 alt=""
-//                             />
-//                             <div>
-//                                 <p className="font-semibold">Raj Patel</p>
-//                                 <p className="text-sm text-gray-500">Data Analyst at XYZ</p>
-//                                 <p className="text-xs text-green-500">5h ago</p>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Profile;
+function Info({ label, value }) {
+    return (
+        <div className="bg-gray-50 rounded-lg p-4">
+            <p className="text-xs text-gray-500">{label}</p>
+            <p className="font-medium text-gray-900">{value || "-"}</p>
+        </div>
+    );
+}

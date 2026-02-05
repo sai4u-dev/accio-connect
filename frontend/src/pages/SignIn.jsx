@@ -1,74 +1,53 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signin } from "../features/auth/authThunks";
+import { useState } from "react";
+import { Link } from "react-router-dom"
 
-const SignIn = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const navigate = useNavigate();
+export default function SignIn() {
+    const dispatch = useDispatch();
+    const { loading, error } = useSelector((s) => s.auth);
 
-    // 🔐 Check if already logged in
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                await axios.get("http://localhost:8000/api/auth/me", {
-                    withCredentials: true,
-                });
+    const [form, setForm] = useState({ email: "", password: "" });
 
-                // If request succeeds → user is logged in
-                navigate("/profile");
-            } catch (err) {
-                // Not logged in → stay on sign in page
-                console.log(err)
-            }
-        };
-
-        checkAuth();
-    }, [navigate]);
-
-    const handleSubmit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
-
-        try {
-            await axios.post(
-                "http://localhost:8000/api/auth/signin",
-                { email, password },
-                { withCredentials: true }
-            );
-
-            navigate("/profile");
-        } catch (err) {
-            alert(err.response?.data?.message || "SignIn failed");
-        }
+        dispatch(signin(form));
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
+        <>
+            <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+                <div className="bg-white flex flex-col justify-center items-center text-center shadow rounded-2xl py-8 px-4">
+                    <form onSubmit={submit} className="max-w-md mx-auto p-6 rounded px-6">
+                        <h1 className="text-2xl text-sky-600 font-bold mb-2">Accio Connect</h1>
+                        <h2 className="text-xl font-bold mb-4">Sign In</h2>
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    className="w-full border px-3 py-2 rounded mb-4"
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+                        <input
+                            className="w-full border p-2 mb-3 rounded-lg"
+                            placeholder="Email"
+                            required
+                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        />
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    className="w-full border px-3 py-2 rounded mb-6"
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+                        <input
+                            type="password"
+                            className="w-full border p-2 mb-3 rounded-lg"
+                            placeholder="Password"
+                            required
+                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        />
 
-                <button className="w-full bg-blue-600 text-white py-2 rounded">
-                    Sign In
-                </button>
-            </form>
-        </div>
+                        {error && <p className="text-red-500">{error}</p>}
+
+                        <button className="w-full bg-blue-600 text-white py-2 rounded rounded-lg">
+                            {loading ? "Loading..." : "Login"}
+                        </button>
+                    </form>
+                    <button className=" m-2   px-4 py-2 bg-orange-100">
+                        <Link to={"/signup"}>Sign Up</Link>
+                    </button>
+                </div>
+            </div >
+        </>
     );
-};
-
-export default SignIn;
+}
