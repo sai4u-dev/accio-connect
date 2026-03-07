@@ -44,7 +44,7 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-100 no-scrollbar relative dashboard ">
+        <div className="min-h-screen bg-gray-100 no-scrollbar relative dashboard">
             {/* Search */}
             <SearchBar
                 isVisible={true}
@@ -58,13 +58,13 @@ export default function Dashboard() {
                     initial={{ x: 80, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4 }}
-                    className="hidden lg:block w-64 sticky top-0 h-[86vh] "
+                    className="hidden lg:block w-64 sticky top-0 h-[86vh] z-20"
                 >
                     <Sidebar />
                 </motion.aside>
 
                 {/* Main Feed */}
-                <div className="flex-1 px-4 py-6 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar ">
+                <div className="flex-1 px-4 py-6 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar dashboard">
                     <motion.main
                         variants={stagger}
                         initial="hidden"

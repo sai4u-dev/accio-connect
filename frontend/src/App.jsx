@@ -7,11 +7,11 @@ import { checkMe } from "./features/auth/authThunks";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
-import Dashboard from "./pages/Dashboard";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import Users from "./pages/Users";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   const dispatch = useDispatch();
