@@ -44,7 +44,7 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-100 no-scrollbar relative ">
+        <div className="min-h-screen bg-gray-100 no-scrollbar relative dashboard ">
             {/* Search */}
             <SearchBar
                 isVisible={true}
