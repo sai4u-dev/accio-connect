@@ -9,7 +9,6 @@ const errorHandler = require("./middleware/error.middleware");
 const { getAllLogs } = require("./controllers/admin.controller");
 
 const app = express();
-const CLIENT_URL = `${process.env.CLIENT_URL}`;
 
 // Middleware
 app.use(
