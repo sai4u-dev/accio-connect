@@ -52,7 +52,7 @@ export default function Dashboard() {
                 setSearchTerm={setSearchTerm}
             />
 
-            <div className="flex relative max-w-[1400px] mx-auto ">
+            <div className="flex relative max-w-[1600px] mx-auto ">
                 {/* Sidebar */}
                 <motion.aside
                     initial={{ x: 80, opacity: 0 }}
