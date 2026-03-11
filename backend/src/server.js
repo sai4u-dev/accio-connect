@@ -3,9 +3,19 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 
 dotenv.config();
-connectDB();
 
-const PORT = 8000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    const PORT = 8000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("Server startup failed:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
