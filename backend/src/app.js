@@ -15,8 +15,8 @@ const CLIENT_URL = `${process.env.CLIENT_URL}`;
 app.use(
   cors({
     origin: [
-      "https://accio-connect-community-git-main-sai-narendra-s-projects.vercel.app/",
-      "https://accio-connect-community.vercel.app/",
+      "https://accio-connect-community-git-main-sai-narendra-s-projects.vercel.app",
+      "https://accio-connect-community.vercel.app",
       "http://localhost:5173",
     ],
     credentials: true,
