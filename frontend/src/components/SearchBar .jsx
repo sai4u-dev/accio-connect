@@ -35,6 +35,11 @@ const SearchBar = ({ isVisible, searchTerm, setSearchTerm }) => {
                         />
                     </div>
                 </div>
+                <Link
+                    to={`/profile`}
+                    className=" bg-green-500 hover:bg-green-600 py-2 rounded-lg font-medium transition px-10 mr-10">
+                    Profile
+                </Link>
                 <button
                     onClick={() => dispatch(logout())}
                     className=" bg-red-500 hover:bg-red-600 py-2 rounded-lg font-medium transition px-10"

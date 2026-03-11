@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { logout, updateProfile } from "../features/auth/authThunks";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -460,6 +460,7 @@ export default function Profile() {
             `}</style>
 
             <div className="profile-root">
+                <Link to={`/`} className="bg-gray-400 w-20 text-center rounded mb-4 py-2 px-4 hover:bg-gray-300 absolute top-6 left-10">Home</Link>
                 <div className="bg-orb bg-orb-1" />
                 <div className="bg-orb bg-orb-2" />
                 <div className="bg-orb bg-orb-3" />

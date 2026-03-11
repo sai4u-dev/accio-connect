@@ -13,14 +13,15 @@ import PostCard from "../components/PostCard";
 import RecentlyPlaced from "../components/RecentlyPlaced";
 import SearchBar from "../components/SearchBar "
 import UserDashboard from "../components/UserDashboard";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
     const dispatch = useDispatch();
 
     const { posts, loading } = useSelector((state) => state.posts);
     const { users } = useSelector((state) => state.users);
-
     const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate()
 
     useDocumentMeta({
         title: "Accio Connect - A Group to Collaborate",

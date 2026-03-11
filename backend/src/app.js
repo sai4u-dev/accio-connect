@@ -9,11 +9,12 @@ const errorHandler = require("./middleware/error.middleware");
 const { getAllLogs } = require("./controllers/admin.controller");
 
 const app = express();
+const client_url = `${process.env.CLIENT_URL}`;
 
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [client_url],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
