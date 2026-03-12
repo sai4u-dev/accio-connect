@@ -38,12 +38,12 @@ export default function PostCard({ post }) {
             {/* Header */}
             <div className="flex items-center gap-3 mb-3">
                 <img
-                    src={post.user.profilePicture}
-                    alt={post.user.firstName}
+                    src={post.user?.profilePicture}
+                    alt={post.user?.firstName}
                     className="w-10 h-10 rounded-full object-cover border"
                 />
                 <div>
-                    <p className="text-sm font-extralight text-gray-500 ">{post.user.firstName}</p>
+                    <p className="text-sm font-extralight text-gray-500 ">{post.user?.firstName}</p>
                     <p className="text-sm text-gray-500 mt-0.5">{timeAgo(post.createdAt)}</p>
                 </div>
             </div>
