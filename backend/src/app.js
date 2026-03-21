@@ -32,6 +32,7 @@ app.use(responseHandler);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.get("/healthcheck", (req, res) => {
+  console.log("health Check");
   res.status(200).json({
     message: "Hello from middleware",
   });
