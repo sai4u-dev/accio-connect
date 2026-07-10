@@ -6,7 +6,7 @@ SignIn
 Profile
 ```
 
-# 📁 Backend Folder Structure — Interview Level Explanation
+# 📁 Backend Folder Structure
 
 ## 📂 config/
 
