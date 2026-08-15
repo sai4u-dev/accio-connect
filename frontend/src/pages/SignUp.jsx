@@ -474,7 +474,7 @@ export default function SignUp() {
 
           <div className="signin-row">
             Have an account?{" "}
-            <Link to="/signin" className="signin-link">Sign in</Link>
+            <Link to="/login" className="signin-link">Sign in</Link>
           </div>
 
         </div>
