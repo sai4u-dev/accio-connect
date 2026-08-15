@@ -6,7 +6,11 @@ import { Link } from "react-router-dom";
 export default function SignIn() {
     const dispatch = useDispatch();
     const { loading, error } = useSelector((s) => s.auth);
-    const [form, setForm] = useState({ email: "", password: "" });
+
+    const [form, setForm] = useState({
+        email: "",
+        password: "",
+    });
 
     const submit = (e) => {
         e.preventDefault();
@@ -14,154 +18,351 @@ export default function SignIn() {
     };
 
     return (
-        <div className="font-sans min-h-screen bg-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
+        <>
+            <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-            {/* Background Orbs */}
-            <div
-                className="absolute w-[420px] h-[420px] rounded-full blur-[90px] opacity-20 pointer-events-none"
-                style={{
-                    background: "radial-gradient(circle,#3b82f6,transparent)",
-                    top: "-80px",
-                    left: "-100px",
-                    animation: "drift 8s ease-in-out infinite alternate",
-                }}
-            />
+        .signin-root{
+          font-family:'DM Sans',sans-serif;
+          min-height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:linear-gradient(135deg,#fff7ed 0%,#eff6ff 60%,#ffffff 100%);
+          overflow:hidden;
+          position:relative;
+          padding:20px;
+        }
 
-            <div
-                className="absolute w-[300px] h-[300px] rounded-full blur-[90px] opacity-20 pointer-events-none"
-                style={{
-                    background: "radial-gradient(circle,#6366f1,transparent)",
-                    bottom: "-60px",
-                    right: "-60px",
-                    animation: "drift 8s ease-in-out infinite alternate",
-                    animationDelay: "-4s",
-                }}
-            />
+        .orb{
+          position:absolute;
+          border-radius:50%;
+          filter:blur(80px);
+          opacity:.22;
+          animation:drift 8s ease-in-out infinite alternate;
+          pointer-events:none;
+        }
 
-            <div
-                className="absolute w-[200px] h-[200px] rounded-full blur-[90px] opacity-20 pointer-events-none"
-                style={{
-                    background: "radial-gradient(circle,#22d3ee,transparent)",
-                    top: "50%",
-                    right: "20%",
-                    animation: "drift 8s ease-in-out infinite alternate",
-                    animationDelay: "-2s",
-                }}
-            />
+        .orb-1{
+          width:380px;
+          height:380px;
+          background:radial-gradient(circle,#f97316,transparent);
+          top:-100px;
+          left:-80px;
+        }
 
-            {/* Card */}
-            <div className="relative w-[420px] bg-white/[0.035] border border-white/10 rounded-[28px] px-11 pt-12 pb-10 backdrop-blur-xl shadow-[0_32px_80px_rgba(0,0,0,0.6)] animate-[fadeUp_0.6s_cubic-bezier(0.22,1,0.36,1)]">
+        .orb-2{
+          width:300px;
+          height:300px;
+          background:radial-gradient(circle,#3b82f6,transparent);
+          bottom:-60px;
+          right:-60px;
+          animation-delay:-4s;
+        }
 
-                {/* Brand */}
-                <div className="flex items-center gap-2 text-[#3b82f6] text-[13px] font-extrabold tracking-[0.18em] uppercase mb-7">
-                    <span className="w-[6px] h-[6px] bg-[#3b82f6] rounded-full"></span>
-                    Accio Connect
-                </div>
+        .orb-3{
+          width:220px;
+          height:220px;
+          background:radial-gradient(circle,#fb923c,transparent);
+          top:45%;
+          right:12%;
+          animation-delay:-2s;
+        }
 
-                {/* Heading */}
-                <h1 className="text-[32px] font-bold text-slate-100 leading-tight mb-1">
-                    Welcome back
-                </h1>
+        @keyframes drift{
+          from{
+            transform:translate(0,0) scale(1);
+          }
+          to{
+            transform:translate(25px,20px) scale(1.08);
+          }
+        }
 
-                <p className="text-sm text-white/40 mb-9 font-light">
-                    Sign in to continue your session
-                </p>
+        @keyframes fadeUp{
+          from{
+            opacity:0;
+            transform:translateY(30px);
+          }
+          to{
+            opacity:1;
+            transform:translateY(0);
+          }
+        }
 
-                <form onSubmit={submit}>
+        .signin-card{
+          width:100%;
+          max-width:420px;
+          background:rgba(255,255,255,.88);
+          backdrop-filter:blur(18px);
+          border:1px solid rgba(255,255,255,.9);
+          border-radius:28px;
+          padding:44px 38px;
+          box-shadow:
+            0 24px 70px rgba(0,0,0,.10),
+            0 0 0 1px rgba(249,115,22,.08);
+          animation:fadeUp .6s cubic-bezier(.22,1,.36,1);
+        }
 
-                    {/* Email */}
-                    <div className="mb-4">
-                        <label className="block text-[11px] font-medium tracking-[0.1em] uppercase text-white/40 mb-2">
-                            Email address
-                        </label>
+        .brand{
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:28px;
+        }
 
-                        <input
-                            type="email"
-                            required
-                            placeholder="you@example.com"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-md text-slate-100 placeholder-white/20 outline-none focus:border-blue-500 focus:bg-blue-500/10 focus:ring-2 focus:ring-blue-500/20 transition"
-                            onChange={(e) =>
-                                setForm({ ...form, email: e.target.value })
-                            }
-                        />
+        .brand-icon{
+          width:32px;
+          height:32px;
+          border-radius:8px;
+          background:linear-gradient(135deg,#f97316,#fb923c);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          color:#fff;
+          font-weight:bold;
+          box-shadow:0 4px 12px rgba(249,115,22,.3);
+        }
+
+        .brand-name{
+          font-family:'Syne',sans-serif;
+          font-weight:800;
+          color:#f97316;
+          letter-spacing:.05em;
+        }
+
+        .title{
+          font-family:'Syne',sans-serif;
+          font-size:30px;
+          color:#0f172a;
+          margin-bottom:6px;
+        }
+
+        .subtitle{
+          color:#64748b;
+          margin-bottom:30px;
+          font-size:14px;
+        }
+
+        .label{
+          display:block;
+          margin-bottom:7px;
+          font-size:11px;
+          font-weight:600;
+          color:#64748b;
+          text-transform:uppercase;
+          letter-spacing:.08em;
+        }
+
+        .input{
+          width:100%;
+          background:#f8fafc;
+          border:1px solid #e2e8f0;
+          border-radius:12px;
+          padding:13px 15px;
+          font-size:15px;
+          color:#1e293b;
+          outline:none;
+          transition:.25s;
+          box-sizing:border-box;
+        }
+
+        .input:focus{
+          background:#fff;
+          border-color:#3b82f6;
+          box-shadow:0 0 0 4px rgba(59,130,246,.12);
+        }
+
+        .button{
+          width:100%;
+          margin-top:8px;
+          padding:14px;
+          border:none;
+          border-radius:12px;
+          background:linear-gradient(135deg,#f97316,#3b82f6);
+          color:white;
+          font-family:'Syne',sans-serif;
+          font-size:15px;
+          font-weight:700;
+          cursor:pointer;
+          transition:.2s;
+          box-shadow:0 6px 22px rgba(249,115,22,.25);
+        }
+
+        .button:hover:not(:disabled){
+          transform:translateY(-1px);
+          opacity:.95;
+        }
+
+        .button:disabled{
+          opacity:.6;
+          cursor:not-allowed;
+        }
+
+        .spinner{
+          display:inline-block;
+          width:15px;
+          height:15px;
+          border:2px solid rgba(255,255,255,.35);
+          border-top:2px solid white;
+          border-radius:50%;
+          animation:spin .7s linear infinite;
+          margin-right:8px;
+          vertical-align:middle;
+        }
+
+        @keyframes spin{
+          to{
+            transform:rotate(360deg);
+          }
+        }
+
+        .error{
+          margin-bottom:16px;
+          background:#fee2e2;
+          border:1px solid #fecaca;
+          color:#dc2626;
+          padding:12px;
+          border-radius:10px;
+          font-size:14px;
+        }
+
+        .divider{
+          display:flex;
+          align-items:center;
+          gap:12px;
+          margin:24px 0 18px;
+        }
+
+        .divider-line{
+          flex:1;
+          height:1px;
+          background:#e2e8f0;
+        }
+
+        .divider-text{
+          color:#94a3b8;
+          font-size:12px;
+        }
+
+        .footer{
+          text-align:center;
+          color:#64748b;
+          font-size:14px;
+        }
+
+        .footer a{
+          color:#2563eb;
+          text-decoration:none;
+          font-weight:600;
+          transition:.2s;
+        }
+
+        .footer a:hover{
+          color:#f97316;
+        }
+      `}</style>
+
+            <div className="signin-root">
+
+                <div className="orb orb-1"></div>
+                <div className="orb orb-2"></div>
+                <div className="orb orb-3"></div>
+
+                <div className="signin-card">
+
+                    <div className="brand">
+                        <div className="brand-icon">A</div>
+                        <div className="brand-name">ACCIO CONNECT</div>
                     </div>
 
-                    {/* Password */}
-                    <div className="mb-6">
-                        <label className="block text-[11px] font-medium tracking-widest uppercase text-white/40 mb-2">
-                            Password
-                        </label>
+                    <h1 className="title">Welcome Back</h1>
 
-                        <input
-                            type="password"
-                            required
-                            placeholder="••••••••"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-md text-slate-100 placeholder-white/20 outline-none focus:border-blue-500 focus:bg-blue-500/10 focus:ring-2 focus:ring-blue-500/20 transition"
-                            onChange={(e) =>
-                                setForm({ ...form, password: e.target.value })
-                            }
-                        />
-                    </div>
+                    <p className="subtitle">
+                        Sign in to continue your learning journey.
+                    </p>
 
-                    {/* Error */}
-                    {error && (
-                        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-sm text-red-400 mb-4">
-                            {error}
+                    <form onSubmit={submit}>
+
+                        <div style={{ marginBottom: 18 }}>
+                            <label className="label">
+                                Email Address
+                            </label>
+
+                            <input
+                                className="input"
+                                type="email"
+                                placeholder="you@example.com"
+                                required
+                                value={form.email}
+                                onChange={(e) =>
+                                    setForm({
+                                        ...form,
+                                        email: e.target.value,
+                                    })
+                                }
+                            />
                         </div>
-                    )}
 
-                    {/* Button */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white font-semibold tracking-wide shadow-lg hover:opacity-90 hover:-translate-y-[1px] active:translate-y-0 transition disabled:opacity-60 disabled:cursor-not-allowed mb-5"
-                    >
-                        {loading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <span className="w-[14px] h-[14px] border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                Signing in...
-                            </span>
-                        ) : (
-                            "Sign In"
+                        <div style={{ marginBottom: 20 }}>
+                            <label className="label">
+                                Password
+                            </label>
+
+                            <input
+                                className="input"
+                                type="password"
+                                placeholder="••••••••"
+                                required
+                                value={form.password}
+                                onChange={(e) =>
+                                    setForm({
+                                        ...form,
+                                        password: e.target.value,
+                                    })
+                                }
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="error">
+                                {error}
+                            </div>
                         )}
-                    </button>
 
-                </form>
+                        <button
+                            className="button"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner"></span>
+                                    Signing In...
+                                </>
+                            ) : (
+                                "Sign In →"
+                            )}
+                        </button>
 
-                {/* Divider */}
-                <div className="flex items-center gap-3 mb-5">
-                    <div className="flex-1 h-px bg-white/10"></div>
-                    <span className="text-xs text-white/30">new here?</span>
-                    <div className="flex-1 h-px bg-white/10"></div>
-                </div>
+                    </form>
 
-                {/* Signup */}
-                <div className="text-center text-sm text-white/40">
-                    Don't have an account?{" "}
-                    <Link
-                        to="/signup"
-                        className="text-blue-400 hover:text-blue-300 font-medium"
-                    >
-                        Create one
-                    </Link>
+                    <div className="divider">
+                        <div className="divider-line"></div>
+                        <div className="divider-text">
+                            new here?
+                        </div>
+                        <div className="divider-line"></div>
+                    </div>
+
+                    <div className="footer">
+                        Don't have an account?{" "}
+                        <Link to="/signup">
+                            Create one
+                        </Link>
+                    </div>
+
                 </div>
             </div>
-
-            {/* Animations */}
-            <style>
-                {`
-        @keyframes drift {
-          from { transform: translate(0,0) scale(1); }
-          to { transform: translate(30px,20px) scale(1.08); }
-        }
-
-        @keyframes fadeUp {
-          from { opacity:0; transform: translateY(24px); }
-          to { opacity:1; transform: translateY(0); }
-        }
-      `}
-            </style>
-
-        </div>
+        </>
     );
 }
