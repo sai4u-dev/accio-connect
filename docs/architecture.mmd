@@ -1,0 +1,42 @@
+%% Accio Connect — system + container architecture (Mermaid)
+%% Render: https://mermaid.live or `npx @mermaid-js/mermaid-cli -i docs/architecture.mmd`
+%% Source of truth for docs/ARCHITECTURE.md §1–§3.
+
+flowchart LR
+    subgraph Client["Frontend SPA (React 19 + Vite :5173)"]
+        UI[Pages: Dashboard/Profile/Users/SignIn/SignUp]
+        Store[(Redux: auth/posts/users)]
+        AX[Axios withCredentials]
+        UI <--> Store
+        Store <--> AX
+    end
+    subgraph Server["Backend API (Express 5 :8000)"]
+        MW[CORS + json + cookieParser + responseHandler]
+        AM[authorize: cookie accioConnectToken or Bearer]
+        R1[Routes /api/auth]
+        R2[Routes /api/post]
+        C1[auth.controller]
+        C2[post.controller]
+        C0[admin.controller]
+        M[(Mongoose: User + Post live)]
+        MW --> R1 & R2
+        R1 --> AM
+        R2 --> AM
+        AM --> C1 & C2
+        C1 & C2 --> M
+        R1 -.-> C0
+    end
+    DB[(MongoDB)]
+    AX -- "REST /api + cookies" --> MW
+    M --> DB
+
+%% --- Auth sequence ---
+%% sequenceDiagram
+%%   participant F as Frontend Redux
+%%   participant B as Backend auth.controller
+%%   participant MW2 as authorize middleware
+%%   participant D as MongoDB User.sessions
+%%   F->>B: POST /api/auth/signup (enums+unique checks, bcrypt-12)
+%%   F->>B: POST /api/auth/signin (+password, compare, sessions.push, JWT 7d cookie)
+%%   F->>MW2: GET /api/auth/me (cookie or Bearer) -> req.user
+%%   F->>B: POST /api/post, PUT like, POST comment (authorize + ownership)

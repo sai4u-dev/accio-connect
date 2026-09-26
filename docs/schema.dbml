@@ -1,0 +1,167 @@
+// Accio Connect — Data Modeling (DBML)
+// Paste into https://dbdiagram.io to visualize. Live tables: users, posts.
+// Planned (unwired, missing require("mongoose") in source): connections,
+// conversations, messages, notifications, placements, referrals.
+// See docs/DATABASE_DESIGN.md for field semantics + recommended deltas.
+
+Table users {
+  _id ObjectId [pk]
+  firstName varchar(50) [not null]
+  lastName varchar(50)
+  email varchar [not null, unique, note: 'lowercase, indexed']
+  profilePicture varchar [default: '', note: 'URL string']
+  phoneNumber varchar [not null, unique]
+  password varchar [not null, note: 'bcrypt hash, select:false, never returned']
+  batch varchar [not null, note: 'enum: OBH_1 | OBH_2 | OBH_3']
+  isInstructor boolean [default: false]
+  location varchar [not null, note: 'enum: hyderabad | noida | pune | chennai | bengaluru']
+  courseType varchar [not null, note: 'enum: mern | java | da']
+  isActive boolean [default: true]
+  lastLogin timestamp
+  lastLogout timestamp
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    email [unique]
+  }
+}
+
+Table sessions {
+  _id ObjectId [pk]
+  user_id ObjectId [not null, ref: > users._id, note: 'embedded User.sessions[] in Mongo; extracted here for modeling']
+  login timestamp [default: `now()`]
+  logout timestamp
+  device varchar [note: 'user-agent or Unknown']
+}
+
+Table posts {
+  _id ObjectId [pk]
+  user ObjectId [not null, ref: > users._id]
+  contentType varchar [not null, note: 'live: free string; target enum: image | video | text']
+  content text [not null, note: 'URL or text body']
+  caption varchar(1000)
+  type varchar [not null, note: 'live: free string (frontend sends post); target enum: public | private | batch']
+  isLikeDisable boolean [note: 'target default: false']
+  isCommentDisable boolean [note: 'target default: false']
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    user
+    createdAt [name: 'feed_sort']
+  }
+}
+
+Table likes {
+  _id ObjectId [pk]
+  post_id ObjectId [not null, ref: > posts._id, note: 'embedded Post.likes[] in Mongo; extracted here for modeling']
+  userId varchar [not null, note: 'BUG: stored as String snapshot; target: ObjectId ref users._id']
+  userName varchar [not null, note: 'denormalized snapshot']
+  profilePic varchar [not null, note: 'denormalized snapshot']
+}
+
+Table comments {
+  _id ObjectId [pk]
+  post_id ObjectId [not null, ref: > posts._id, note: 'embedded Post.comments[] in Mongo']
+  userId varchar [not null, note: 'BUG: stored as String snapshot; target: ObjectId ref users._id']
+  userName varchar [not null]
+  profilePic varchar [not null]
+  comment text [not null]
+  createdAt timestamp [note: 'source bug: default Date.now() should be Date.now']
+}
+
+Table connections {
+  _id ObjectId [pk, note: 'PLANNED — file missing require(mongoose)']
+  requester ObjectId [not null, ref: > users._id]
+  receiver ObjectId [not null, ref: > users._id]
+  status varchar [default: 'pending', note: 'enum: pending | accepted | rejected']
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    (requester, receiver) [unique, name: 'no_dup_requests']
+    (receiver, status)
+    (requester, status)
+  }
+}
+
+Table conversations {
+  _id ObjectId [pk, note: 'PLANNED']
+  lastMessage text [note: 'denormalized preview']
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table conversation_participants {
+  conversation_id ObjectId [not null, ref: > conversations._id]
+  user_id ObjectId [not null, ref: > users._id]
+
+  Indexes {
+    (conversation_id, user_id) [unique]
+  }
+}
+
+Table messages {
+  _id ObjectId [pk, note: 'PLANNED']
+  conversationId ObjectId [not null, ref: > conversations._id]
+  sender ObjectId [not null, ref: > users._id]
+  message text [not null]
+  isRead boolean [default: false]
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    (conversationId, createdAt)
+    sender
+  }
+}
+
+Table notifications {
+  _id ObjectId [pk, note: 'PLANNED']
+  user ObjectId [not null, ref: > users._id, note: 'recipient']
+  type varchar [note: 'enum: like | comment | message | connection | referral']
+  referenceId ObjectId [note: 'polymorphic; target: refPath referenceModel']
+  isRead boolean [default: false]
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    (user, isRead, createdAt)
+  }
+}
+
+Table placements {
+  _id ObjectId [pk, note: 'PLANNED — feeds RecentlyPlaced']
+  user ObjectId [not null, ref: > users._id]
+  companyName varchar [not null]
+  role varchar [not null]
+  salary varchar [note: 'target: integer + currency for sorting']
+  placedAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    user
+    placedAt
+  }
+}
+
+Table referrals {
+  _id ObjectId [pk, note: 'PLANNED — Sidebar /rp target']
+  postedBy ObjectId [not null, ref: > users._id]
+  companyName varchar [not null]
+  role varchar [not null]
+  location varchar
+  jobType varchar [note: 'enum: remote | hybrid | onsite']
+  description text
+  referralLink varchar
+  isActive boolean [default: true]
+  createdAt timestamp
+  updatedAt timestamp
+
+  Indexes {
+    (isActive, createdAt)
+    companyName
+  }
+}

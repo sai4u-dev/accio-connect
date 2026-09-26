@@ -1,0 +1,98 @@
+%% Accio Connect — Entity-Relationship Diagram (Mermaid)
+%% Render: https://mermaid.live or `npx @mermaid-js/mermaid-cli -i docs/erd.mmd`
+%% Tabular spec: docs/DATABASE_DESIGN.md §3–§4. DBML twin: docs/schema.dbml.
+
+erDiagram
+    User ||--o{ Post : authors
+    User ||--o{ Session : has
+    Post ||--o{ Like : embeds
+    Post ||--o{ Comment : embeds
+    User ||--o{ Connection : requests
+    User ||--o{ Conversation : participates
+    Conversation ||--o{ Message : contains
+    User ||--o{ Message : sends
+    User ||--o{ Notification : receives
+    User ||--o{ Placement : placed_as
+    User ||--o{ Referral : posts
+
+    User {
+        ObjectId _id PK
+        string firstName
+        string lastName
+        string email UK
+        string profilePicture
+        string phoneNumber UK
+        string password_hash
+        string batch "OBH_1|OBH_2|OBH_3"
+        boolean isInstructor
+        string location
+        string courseType "mern|java|da"
+        boolean isActive
+        date lastLogin
+        date lastLogout
+    }
+    Session {
+        date login
+        date logout
+        string device
+    }
+    Post {
+        ObjectId _id PK
+        ObjectId user FK
+        string contentType
+        string content
+        string caption
+        string type
+        boolean isLikeDisable
+        boolean isCommentDisable
+    }
+    Like {
+        string userId "String snapshot - fix to ObjectId"
+        string userName
+        string profilePic
+    }
+    Comment {
+        string userId "String snapshot - fix to ObjectId"
+        string userName
+        string profilePic
+        string comment
+        date createdAt
+    }
+    Connection {
+        ObjectId requester FK
+        ObjectId receiver FK
+        string status "pending|accepted|rejected"
+    }
+    Conversation {
+        ObjectId participantslers FK
+        string lastMessage
+    }
+    Message {
+        ObjectId conversationId FK
+        ObjectId sender FK
+        string message
+        boolean isRead
+    }
+    Notification {
+        ObjectId user FK
+        string type "like|comment|message|connection|referral"
+        ObjectId referenceId
+        boolean isRead
+    }
+    Placement {
+        ObjectId user FK
+        string companyName
+        string role
+        string salary
+        date placedAt
+    }
+    Referral {
+        ObjectId postedBy FK
+        string companyName
+        string role
+        string location
+        string jobType "remote|hybrid|onsite"
+        string description
+        string referralLink
+        boolean isActive
+    }
