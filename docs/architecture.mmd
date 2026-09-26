@@ -13,21 +13,24 @@ flowchart LR
     subgraph Server["Backend API (Express 5 :8000)"]
         MW[CORS + json + cookieParser + responseHandler]
         AM[authorize: cookie accioConnectToken or Bearer]
-        R1[Routes /api/auth]
-        R2[Routes /api/post]
-        C1[auth.controller]
-        C2[post.controller]
-        C0[admin.controller]
-        M[(Mongoose: User + Post live)]
-        MW --> R1 & R2
+        R1[Routes auth]
+        R2[Routes post]
+        C1[auth controller]
+        C2[post controller]
+        C0[admin controller]
+        M[(Mongoose User and Post live)]
+        MW --> R1
+        MW --> R2
         R1 --> AM
         R2 --> AM
-        AM --> C1 & C2
-        C1 & C2 --> M
+        AM --> C1
+        AM --> C2
+        C1 --> M
+        C2 --> M
         R1 -.-> C0
     end
     DB[(MongoDB)]
-    AX -- "REST /api + cookies" --> MW
+    AX -- "REST api with cookies" --> MW
     M --> DB
 
 %% --- Auth sequence ---

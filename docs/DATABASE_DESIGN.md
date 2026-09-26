@@ -27,17 +27,17 @@
 
 ```mermaid
 erDiagram
-    User ||--o{ Post : "authors (Post.user → User._id)"}
-    User ||--o{ Connection : "requests (requester/receiver)"
-    User ||--o{ Conversation : "participates (participants[])"
-    Conversation ||--o{ Message : "contains (conversationId)"
-    User ||--o{ Message : "sends (sender)"
-    User ||--o{ Notification : "receives (user)"
-    User ||--o{ Placement : "placed (user)"
-    User ||--o{ Referral : "posts (postedBy)"
-    User ||--o{ Session : "has (embedded sessions[])"
-    Post ||--o{ Like : "has (embedded likes[])"
-    Post ||--o{ Comment : "has (embedded comments[])"
+    User ||--o{ Post : authors
+    User ||--o{ Connection : requests
+    User ||--o{ Conversation : participates
+    Conversation ||--o{ Message : contains
+    User ||--o{ Message : sends
+    User ||--o{ Notification : receives
+    User ||--o{ Placement : placed
+    User ||--o{ Referral : posts
+    User ||--o{ Session : has
+    Post ||--o{ Like : embeds
+    Post ||--o{ Comment : embeds
 ```
 
 Solid lines = live foreign keys (`Post.user`). Dashed-status items

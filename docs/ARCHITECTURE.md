@@ -22,14 +22,14 @@ flowchart LR
     subgraph Server["Backend (Express :8000)"]
         MW[CORS + cookieParser + responseHandler]
         AuthM[authorize middleware]
-        Routes[/api/auth + /api/post/]
+        Routes["API routes: auth and post"]
         Ctrl[Controllers: auth/post/admin]
         Models[(Mongoose Models)]
     end
     DB[(MongoDB Atlas)]
     UI <--> Store
     Store <--> API
-    API -- HTTPS/cookies + Bearer --> MW
+    API -- "HTTPS cookies Bearer" --> MW
     MW --> Routes --> AuthM --> Ctrl --> Models --> DB
 ```
 
@@ -95,16 +95,16 @@ accio-connect/
 
 ```mermaid
 sequenceDiagram
-    participant S as server.js
+    participant S as server
     participant E as dotenv
-    participant D as connectDB (mongoose)
-    participant A as app.js
-    participant L as listen :8000
-    S->>E: config()
-    S->>D: mongoose.connect(MONGO_URI)
-    D-->>S: ✅ MongoDB Connected / exit(1)
-    S->>A: import app (middleware+routes mounted)
-    S->>L: app.listen(8000)
+    participant D as connectDB
+    participant A as app
+    participant L as listener
+    S->>E: config
+    S->>D: mongoose connect with MONGO_URI
+    D-->>S: MongoDB connected
+    S->>A: import app with middleware and routes
+    S->>L: listen on port 8000
 ```
 
 Note: port is hardcoded (`8000`), `process.env.PORT` is ignored.
@@ -122,19 +122,19 @@ Note: port is hardcoded (`8000`), `process.env.PORT` is ignored.
 
 ```mermaid
 sequenceDiagram
-    participant F as Frontend (Redux authThunks)
-    participant B as Backend auth.controller
-    participant M as authorize middleware
-    participant DB as MongoDB (User.sessions)
-    F->>B: POST /api/auth/signup {firstName,email,password,phoneNumber,batch,location,courseType…}
-    B->>DB: validate enums + unique email/phone → bcrypt.hash(12) → User.create
-    F->>B: POST /api/auth/signin {email,password}
-    B->>DB: findOne+password → bcrypt.compare → push sessions{login,device} + lastLogin → save
-    B-->>F: Set-Cookie accioConnectToken=JWT{id,7d} (httpOnly,secure,sameSite:none) + res.success(200,user)
-    F->>M: GET /api/auth/me + Cookie/Bearer
-    M->>DB: jwt.verify(JWT_SECRET) → User.findById-select(-password) → req.user
-    M-->>F: 200 {user} → authChecked=true, isAuthenticated=true
-    F->>B: POST /api/auth/logout → clearCookie + close sessions[].logout
+    participant F as Frontend
+    participant B as Backend
+    participant M as AuthMiddleware
+    participant DB as MongoDB
+    F->>B: POST signup with profile and batch fields
+    B->>DB: validate enums and unique email phone, hash password, create user
+    F->>B: POST signin with email and password
+    B->>DB: verify password, push session, set lastLogin, save
+    B-->>F: set JWT cookie and return user
+    F->>M: GET me with cookie or bearer token
+    M->>DB: verify JWT, load user, attach to request
+    M-->>F: return authenticated user
+    F->>B: POST logout, close session and clear cookie
 ```
 
 Token source priority: `req.cookies.accioConnectToken` →

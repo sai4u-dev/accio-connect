@@ -23,10 +23,10 @@ erDiagram
         string profilePicture
         string phoneNumber UK
         string password_hash
-        string batch "OBH_1|OBH_2|OBH_3"
+        string batch "OBH_1, OBH_2, OBH_3"
         boolean isInstructor
         string location
-        string courseType "mern|java|da"
+        string courseType "mern, java, da"
         boolean isActive
         date lastLogin
         date lastLogout
@@ -61,10 +61,10 @@ erDiagram
     Connection {
         ObjectId requester FK
         ObjectId receiver FK
-        string status "pending|accepted|rejected"
+        string status "pending, accepted, rejected"
     }
     Conversation {
-        ObjectId participantslers FK
+        ObjectId participants FK
         string lastMessage
     }
     Message {
@@ -75,7 +75,7 @@ erDiagram
     }
     Notification {
         ObjectId user FK
-        string type "like|comment|message|connection|referral"
+        string type "like, comment, message, connection, referral"
         ObjectId referenceId
         boolean isRead
     }
@@ -91,7 +91,7 @@ erDiagram
         string companyName
         string role
         string location
-        string jobType "remote|hybrid|onsite"
+        string jobType "remote, hybrid, onsite"
         string description
         string referralLink
         boolean isActive
